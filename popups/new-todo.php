@@ -1,18 +1,31 @@
 <form action="api.php" id="new-todo-form">
-    <h4>Todo Ekle</h4>
-    <input type="text" name="todo" placeholder="Todo"> <br>
-    <select name="type">
-        <option value="">Tipi Seçin</option>
-        <option value="1">Ders</option>
-        <option value="2">Her gün yapılacaklar</option>
-        <option value="3">Sorumluluklarım</option>
-    </select> <br>
-    <label>
-        <input type="checkbox" name="done" value="1">
-        Bunu yaptım olarak işaretle
-    </label> <br>
-    <button>Ekle</button>
-    <button class="close-popup">Kapat</button>
+    <div class="modal-header">
+        <h5 class="modal-title">Todo Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3">
+            <label class="form-label">Todo</label>
+            <input class="form-control" type="text" name="todo">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Todo Tipi</label>
+            <select name="type" class="form-control">
+                <option value="">Seçin</option>
+                <?php foreach(todoTypes() as $id => $type): ?>
+                <option value="<?=$id?>"><?=$type?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="mb-3 form-check">
+            <input id="done" type="checkbox" class="form-check-input" name="done" value="1">
+            <label class="form-check-label" for="done">Bunu yaptım olarak işaretle</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        <button type="submit" class="btn btn-primary">Ekle</button>
+    </div>
 </form>
 
 <script>
@@ -25,9 +38,11 @@ $('#new-todo-form').on('submit', function(e) {
             alert(response.error)
         } else {
 
-            $('.popup').html('').removeClass('open')
+            // $('.popup').html('').removeClass('open')
+            modal.hide()
+            modalContent.html('')
             $('#todo-table tbody').prepend(response.html);
-            $('#todo-table tbody tr:first').addClass('inserted')
+            $('#todo-table tbody tr:first').addClass('table-success')
 
             totalTodos += 1 // todo sayısını güncelle
             setTodosWithPagination()
@@ -41,7 +56,7 @@ $('#new-todo-form').on('submit', function(e) {
             // $('.change-pagination').trigger('change')
 
             setTimeout(() => {
-                $('#todo-table tbody tr:first').removeClass('inserted')
+                $('#todo-table tbody tr:first').removeClass('table-success')
             }, 2000);
 
         }
