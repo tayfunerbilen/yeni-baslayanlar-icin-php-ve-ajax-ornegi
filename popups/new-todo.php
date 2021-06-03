@@ -29,6 +29,15 @@ $('#new-todo-form').on('submit', function(e) {
             $('#todo-table tbody').prepend(response.html);
             $('#todo-table tbody tr:first').addClass('inserted')
 
+            totalTodos += 1 // todo sayısını güncelle
+            setTodosWithPagination()
+
+            // eğer yeni eklenen todo ile birlikte değer mevcut sayfalama limitnden büyükse
+            // en alttaki tr 'yi silelim
+            if (totalTodos > 4) {
+                $('#todo-table tbody tr:last').remove()
+            }
+
             // $('.change-pagination').trigger('change')
 
             setTimeout(() => {

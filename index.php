@@ -82,12 +82,35 @@ $pagination = ceil($total['total'] / 4);
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+let totalTodos = <?=$total['total']?>;
+let currentPage = 1;
+let totalPage = <?=$pagination?>;
+
+function setTodosWithPagination() {
+    let pagination = Math.ceil(totalTodos / 4)
+
+    // eğer ekleme ya da silme sonrasında sayfa değeri değiştiyse o zaman işlem yapalım
+    if (pagination != totalPage) {
+        totalPage = pagination
+        let options
+        for ( let i = 1; i <= pagination; i++ ) {
+            options += `<option ${i == currentPage ? 'selected' : null } value="${i}">${i}. Sayfa</option>`
+        }
+        $('.change-pagination').html(options).trigger('change')
+    }
+}
+
 $('.new-todo').on('click', function(e) {
     const data = {
         action: 'new-todo-popup'
     }
     $.post('api.php', data, function(response) {
         $('.popup').addClass('open').html(response.html)
+
+        // eğer yeni todo eklerken 1. sayfada değilse 1. sayfaya gönderelim
+        if (currentPage !== 1) {
+            $('.change-pagination option[value="1"]').attr('selected', 'selected').trigger('change')
+        }
     }, 'json')
 });
 
@@ -113,8 +136,11 @@ $(document.body).on('click', '.todo-delete', function() {
         } else {
             const todo = $('#todo_' + id);
             todo.addClass('deleted')
+            totalTodos -= 1 // todo sayısını güncelle
+            setTodosWithPagination()
             setTimeout(() => {
                 todo.remove()
+                $('.change-pagination').trigger('change')
             }, 500);
         }
     }, 'json')
@@ -125,6 +151,7 @@ $('.change-pagination').on('change', function() {
         page: $(this).val(),
         action: 'get-todo'
     }
+    currentPage = $(this).val() // varsayılan sayfa değerini güncelle
     $.post('api.php', data, function(response) {
         $('#todo-table tbody').html(response.html);
     }, 'json')
